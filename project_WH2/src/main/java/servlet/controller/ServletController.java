@@ -22,4 +22,11 @@ public class ServletController {
 		
 		return "main/main";
 	}
+	
+	@RequestMapping(value = "/mapTest.do")
+	public String mapTest(ModelMap model) throws Exception {
+		return "main/mapTest";
+	}
+	
+	
 }
