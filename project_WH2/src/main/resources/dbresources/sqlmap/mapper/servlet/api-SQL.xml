@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="api">
+
+
+	<select id="sidolist" resultType="EgovMap">
+		SELECT sd_nm,sd_cd FROM public.tl_sd
+	</select>
+	
+	<select id="sgglist" resultType="egovMap" parameterType="String">
+		<![CDATA[
+		SELECT CASE WHEN split_part(sgg_nm, ' ', 3) <> '' THEN 
+			 split_part(sgg_nm, ' ', 2) || ' ' || split_part(sgg_nm, ' ', 3) 
+		ELSE split_part(sgg_nm, ' ', 2) END as sgg_nm, sgg_cd  
+		FROM public.tl_sgg where substring(sgg_cd,1,2) like #{sdnm}
+		]]>
+	</select>
+	
+	<select id="bjdlist" resultType="egovMap" parameterType="String">
+		SELECT b.bjd_cd, b.bjd_nm 
+		FROM public.tl_bjd as b join public.tl_sgg as s on b.sgg_cd = s.sgg_cd 
+		where s.sgg_cd LIKE #{sggnm}
+	</select>
+	
+	<select id="searchbjd" resultType="egovMap">
+      select ST_AsGeoJSON(ST_EXTENT(geom), 9, 1) from tl_bjd 
+         <trim prefix="WHERE" prefixOverrides="and">
+            <if test="bjd_cd  != null and bjd_cd != ''">
+                AND bjd_cd = #{bjdlist}::varchar
+            </if>
+        </trim>
+	</select>
+	
+	<select id="searchsgg" resultType="egovMap">
+      select ST_AsGeoJSON(ST_EXTENT(geom), 9, 1) from tl_sgg 
+         <trim prefix="WHERE" prefixOverrides="and">
+            <if test="sgg_cd  != null and sgg_cd != ''">
+                AND sgg_cd = #{sggnm}::varchar
+            </if>
+        </trim>
+	</select>
+	
+	<select id="searchsd" resultType="egovMap">
+      select ST_AsGeoJSON(ST_EXTENT(geom), 9, 1) from tl_sd 
+         <trim prefix="WHERE" prefixOverrides="and">
+            <if test="sd_cd  != null and sd_cd != ''">
+                AND sd_cd = #{sdnm}::varchar
+            </if>
+        </trim>
+	</select>
+	
+	<select id="chardata" parameterType="hashMap" resultType="String">
+		<![CDATA[
+		SELECT round(avg("usageamt(kwh)"),2) as kwh  from "TB_CARBON_A2"
+		where usageym like #{chartdate} and "sgg_cd" || substring("bjd_cd",1,3) like #{bjdcd}
+		]]>
+	</select>
+	
+	<insert id="upload" parameterType="hashmap" >
+	insert into public."TB_CARBON_A2" values
+		(#{usageym},#{land_nm},#{doro_nm},
+		#{sgg_cd},#{bjd_cd},#{land_cd},#{bun},
+		#{si},#{nadd},#{nadd_roadcd},#{newaddrabgroundcode},#{newaddrmainnum},
+		#{newaddrsubnum},#{usageamt})
+		
+	</insert>
+</mapper>

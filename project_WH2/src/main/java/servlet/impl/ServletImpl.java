@@ -21,4 +21,7 @@ public class ServletImpl extends EgovAbstractServiceImpl implements ServletServi
 		List<EgovMap> mediaType = dao.selectAll();
 		return str + " -> testImpl ";
 	}
+
+
+
 }
