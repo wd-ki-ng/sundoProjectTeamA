@@ -49,19 +49,18 @@
         </trim>
 	</select>
 	
-	<select id="chardata" parameterType="hashMap" resultType="String">
+	<select id="chardata" parameterType="hashMap" resultType="egovMap">
 		<![CDATA[
-		SELECT round(avg("usageamt(kwh)"),2) as kwh  from "TB_CARBON_A2"
-		where usageym like #{chartdate} and "sgg_cd" || substring("bjd_cd",1,3) like #{bjdcd}
+		SELECT round(avg("usageamt"),2) as kwh from "TB_CARBON_A2"
+		where usageym like #{chartdate} || '%' and "sgg_cd" || substring("bjd_cd",1,3) like #{bjdcd}
+		group by usageym
 		]]>
 	</select>
 	
-	<insert id="upload" parameterType="hashmap" >
-	insert into public."TB_CARBON_A2" values
-		(#{usageym},#{land_nm},#{doro_nm},
-		#{sgg_cd},#{bjd_cd},#{land_cd},#{bun},
-		#{si},#{nadd},#{nadd_roadcd},#{newaddrabgroundcode},#{newaddrmainnum},
-		#{newaddrsubnum},#{usageamt})
-		
+	<insert id="upload" parameterType="hashMap" >
+	<foreach collection="list" item="i" index="index" separator=";">
+	insert into "TB_CARBON_A2" (usageym,sgg_cd,bjd_cd,usageamt) 
+	values (#{i.usageym}, #{i.sggcd}, #{i.bjdcd}, #{i.usageamt})
+	</foreach>
 	</insert>
 </mapper>

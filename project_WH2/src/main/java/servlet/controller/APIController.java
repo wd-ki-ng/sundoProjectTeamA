@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -78,51 +80,46 @@ public class APIController {
 	
 	@ResponseBody
 	@PostMapping(value = "chardata.do")
-	public String chardata(@RequestParam("bjdcd") String bjdcd,
+	public List<EgovMap> chardata(@RequestParam("bjdcd") String bjdcd,
 			@RequestParam("chartdate") String chartdate) throws Exception {
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("chartdate",chartdate);
 			map.put("bjdcd",bjdcd);
-			String data = apiService.chardata(map);
-		return data;
+		return apiService.chardata(map);
 	}
 	
 	
 	@PostMapping("/read-file.do")
 	public @ResponseBody String readfile(@RequestParam("upFile") MultipartFile upFile) throws IOException {
 
-		List<Map<String, Object>> list = new ArrayList<>();
+	    
+		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
 
 		InputStreamReader isr = new InputStreamReader(upFile.getInputStream());
 		BufferedReader br = new BufferedReader(isr);
 
 		String line = null;
+		int pageSize = 10000;
+        int count = 1;
 		while ((line = br.readLine()) != null) {
-			Map<String, Object> m = new HashMap<>();
+			Map<String, Object> m = new HashMap<String, Object>();
 			String[] lineArr = line.split("\\|");
 			m.put("usageym", lineArr[0]); // 사용_년월 date
-			m.put("land_nm", lineArr[1]); // 대지_위치 addr
-			m.put("doro_nm", lineArr[2]); // 도로명_대지_위치 newAddr
-			m.put("sgg_cd", lineArr[3]); // 시군구_코드 sigungu
-			m.put("bjd_cd", lineArr[4]); // 법정동_코드 bubjungdong
-			m.put("land_cd", lineArr[5]); // 대지_구분_코드 addrCode
-			m.put("bun", lineArr[6]); // 번 bun
-			m.put("si", lineArr[7]); // 지 si
-			m.put("nadd", lineArr[8]); // 새주소_일련번호 newAddrCode
-			m.put("nadd_roadcd", lineArr[9]); // 새주소_도로_코드 newAddr
-			m.put("newaddrabgroundcode", lineArr[10]); // 새주소_지상지하_코드newAddrUnder
-			m.put("newaddrmainnum", lineArr[11]); // 새주소_본_번 newAddrBun
-			m.put("newaddrsubnum", lineArr[12]); // 새주소_부_번 newAddrBun2
-			m.put("usageamt", lineArr[13]); // 사용_량(KWh) usekwh
-
+			m.put("sggcd", lineArr[3]); // 시군구_코드 sigungu
+			m.put("bjdcd", lineArr[4]); // 법정동_코드 bubjungdong
+			m.put("usageamt", Integer.parseInt(lineArr[13])); // 사용_량(KWh) usekwh
 			list.add(m);
+            if(--pageSize <= 0 ) {
+                apiService.upload(list);
+                list.clear();
+                System.out.println("클리어"+count++);
+                pageSize = 10000;
+            }
 		}
 		br.close();
 		isr.close();
-
-		apiService.upload(list);
-
-		return "";
+		
+		return "main/mapTest";
 	}
 
 }

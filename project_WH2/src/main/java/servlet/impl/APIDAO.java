@@ -44,8 +44,8 @@ public class APIDAO extends EgovComAbstractDAO {
 		insert("api.upload", list);
 	}
 
-	public String chardata(Map<String, Object> map) {
-		return selectOne("api.chardata", map);
+	public List<EgovMap> chardata(Map<String, Object> map) {
+		return selectList("api.chardata", map);
 	}
 
 }

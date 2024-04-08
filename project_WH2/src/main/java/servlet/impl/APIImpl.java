@@ -54,7 +54,7 @@ public class APIImpl extends EgovAbstractServiceImpl implements APIService{
 	}
 
 	@Override
-	public String chardata(Map<String, Object> map) {
+	public List<EgovMap> chardata(Map<String, Object> map) {
 		return dao.chardata(map);
 	}
 

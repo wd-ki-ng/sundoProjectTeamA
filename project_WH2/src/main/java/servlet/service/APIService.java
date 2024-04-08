@@ -11,7 +11,6 @@ public interface APIService {
 	
 	List<EgovMap> sgglist(String sdnm);
 
-
 	List<EgovMap> bjdlist(String sggnm);
 
 	List<EgovMap> searchbjd(String bjdlist);
@@ -22,7 +21,7 @@ public interface APIService {
 
 	void upload(List<Map<String, Object>> list);
 
-	String chardata(Map<String, Object> map);
+	List<EgovMap> chardata(Map<String, Object> map);
 
 
 
